@@ -537,6 +537,15 @@
     if (section && section.scrollIntoView) section.scrollIntoView({ block: "start" });
   }
 
+  function syncPageUrl() {
+    try {
+      var url = new URL(window.location.href);
+      if (currentPage > 1) url.searchParams.set("page", String(currentPage));
+      else url.searchParams.delete("page");
+      window.history.replaceState(null, "", url.toString());
+    } catch (e) { /* ignore */ }
+  }
+
   function catalogUrl(page) {
     var params = new URLSearchParams();
     params.set("page", String(page));
@@ -550,6 +559,7 @@
 
   function loadDirectory(showSkeleton) {
     var requestId = ++directoryRequestId;
+    syncPageUrl();
     if (showSkeleton && !directoryLoadedOnce) showSkeletons(directoryGrid, 6);
     directoryError.hidden = true;
     fetch(catalogUrl(currentPage)).then(function (res) {
@@ -562,6 +572,7 @@
       totalResults = data.total || 0;
       totalPages = data.totalPages || 1;
       currentPage = data.page || currentPage;
+      syncPageUrl();
       if (Array.isArray(data.categories)) {
         categories = data.categories;
         renderCategoryChips();
@@ -876,6 +887,8 @@
     runAggregatorSearch();
   });
 
+  var initialPage = parseInt(new URLSearchParams(window.location.search).get("page"), 10);
+  if (Number.isFinite(initialPage) && initialPage >= 1) currentPage = initialPage;
   initTheme();
   loadOwn();
   loadDirectory(true);
