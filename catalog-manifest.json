@@ -1,0 +1,18 @@
+{
+  "shards": [
+    "catalog-00.json",
+    "catalog-01.json",
+    "catalog-02.json",
+    "catalog-03.json",
+    "catalog-04.json",
+    "catalog-05.json",
+    "catalog-06.json",
+    "catalog-07.json",
+    "catalog-08.json",
+    "catalog-09.json"
+  ],
+  "total": 2257,
+  "displayed": 2007,
+  "attribution": "Directory data: public-apis (github.com/public-apis/public-apis, MIT license). Entries link to their original sources.",
+  "generated": "2026-11-04"
+}

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://api.xsrazy.web.id/sitemap.xml

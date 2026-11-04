@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Find and try free APIs instantly. Statuses are checked on rotation with caching, not in realtime.">
+<meta name="color-scheme" content="dark light">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0b1020">
+<link rel="canonical" href="https://api.xsrazy.web.id/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:title" content="API Hub - Free API Directory">
+<meta property="og:description" content="Find and try free APIs instantly. Statuses are checked on rotation with caching, not in realtime.">
+<meta property="og:image" content="https://api.xsrazy.web.id/og-image.jpg">
+<meta property="og:url" content="https://api.xsrazy.web.id/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="API Hub - Free API Directory">
+<meta name="twitter:description" content="Find and try free APIs instantly. Statuses are checked on rotation with caching, not in realtime.">
+<meta name="twitter:image" content="https://api.xsrazy.web.id/og-image.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "API Hub",
+  "url": "https://api.xsrazy.web.id/",
+  "description": "Find and try free APIs instantly. Statuses are checked on rotation with caching, not in realtime.",
+  "inLanguage": "en"
+}
+</script>
+<title>API Hub - Free API Directory</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">{ }</span> API Hub</a>
+    <nav class="topnav" aria-label="Main navigation">
+      <a href="#directory">Directory</a>
+      <a href="#own">Original APIs</a>
+      <a href="#journals">Journals and Books</a>
+    </nav>
+    <button type="button" class="btn ghost small theme-toggle" id="theme-toggle" aria-pressed="false">Light mode</button>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <div class="hero">
+    <p class="eyebrow">Free API directory</p>
+    <h1>Find an API, <span>try it right here.</span></h1>
+    <p class="lead">Search free APIs by name or description, filter by category and auth model, then try them right from this page.</p>
+    <div class="hero-actions">
+      <a class="btn" href="#directory">Browse the directory</a>
+      <a class="btn secondary" href="#own">View Original APIs</a>
+    </div>
+    <ul class="stat-row" id="hero-stats">
+      <li><strong id="stat-total">Loading...</strong> APIs listed</li>
+      <li><strong id="stat-own">Loading...</strong> Original APIs</li>
+      <li id="stat-checked">Statuses are checked on rotation with caching, not in realtime.</li>
+    </ul>
+  </div>
+
+  <section id="own" aria-labelledby="own-heading">
+    <div class="section-head">
+      <div>
+        <h2 id="own-heading">Original APIs</h2>
+        <p class="section-intro">Ten original tools you can try right away, with no key. All in this section, one tap from the top of the page.</p>
+      </div>
+      <a class="btn secondary small" href="#directory" id="own-browse-all">View all in the directory</a>
+    </div>
+    <p class="error" id="own-error" hidden></p>
+    <div class="grid" id="own-grid" aria-live="polite"></div>
+    <noscript><p>This section needs JavaScript to show Original APIs.</p></noscript>
+  </section>
+
+  <section id="directory" aria-labelledby="directory-heading">
+    <div class="section-head">
+      <div>
+        <h2 id="directory-heading">API Directory</h2>
+        <p class="section-intro">No-key APIs always appear first, then sorted by name.</p>
+      </div>
+    </div>
+    <p class="attribution">Some directory data comes from <a href="https://github.com/public-apis/public-apis">github.com/public-apis/public-apis</a> (MIT license), with attribution to each API's original source. Every API still belongs to its original source, and links point to each original site.</p>
+
+    <div class="controls">
+      <div class="control search-field">
+        <label for="directory-search">Search APIs</label>
+        <input type="search" id="directory-search" placeholder="Example: quotes, weather, images" autocomplete="off">
+      </div>
+      <div class="control">
+        <label for="auth-filter">Authentication</label>
+        <select id="auth-filter">
+          <option value="all">All</option>
+          <option value="none">No key</option>
+          <option value="apiKey">Requires API key</option>
+          <option value="OAuth">OAuth</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="chips" id="category-chips" role="group" aria-label="Filter by category"></div>
+
+    <p class="last-checked" id="directory-last-checked">Loading status.</p>
+    <p class="error" id="directory-error" hidden></p>
+    <div class="grid" id="directory-grid" aria-live="polite"></div>
+    <nav class="pagination" id="directory-pagination" aria-label="Directory pagination">
+      <button type="button" class="page-btn" id="pagination-prev">Previous</button>
+      <span id="pagination-pages"></span>
+      <button type="button" class="page-btn" id="pagination-next">Next</button>
+      <p class="pagination-info" id="pagination-info" aria-live="polite">Page 1 of 1</p>
+    </nav>
+    <p class="pagination-count" id="directory-count"></p>
+    <p id="directory-empty" hidden>No APIs match the current search and filters.</p>
+    <noscript><p>This directory needs JavaScript to show the API list and its statuses.</p></noscript>
+  </section>
+
+  <section id="journals" aria-labelledby="journals-heading">
+    <div class="section-head">
+      <div>
+        <h2 id="journals-heading">Journals and Books</h2>
+        <p class="section-intro">Search journals and books from several sources at once. Results always link to the original site.</p>
+      </div>
+    </div>
+
+    <div class="search-card">
+      <h3 style="margin-top:0">Search Journals and Books</h3>
+      <form id="aggregator-form">
+        <div class="search-row">
+          <div class="control">
+            <label for="aggregator-query">Keyword</label>
+            <input type="search" id="aggregator-query" placeholder="Example: machine learning, education, history" autocomplete="off">
+          </div>
+          <button type="submit" class="btn" id="aggregator-button">Search</button>
+        </div>
+      </form>
+      <p class="hint">Search runs when the Search button or the Enter key is pressed.</p>
+      <div id="aggregator-status" aria-live="polite"></div>
+      <div id="aggregator-results"></div>
+    </div>
+
+    <h3>Journal and Book Site Directory</h3>
+    <p class="last-checked" id="journal-last-checked"></p>
+    <p class="error" id="journal-error" hidden></p>
+    <div id="journal-groups"></div>
+    <noscript><p>The journal and book directory needs JavaScript to show the site list and its statuses.</p></noscript>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Search results and API content belong to their respective sources. All links point to the original sites. Statuses are checked on rotation with caching, not in realtime. Each entry shows its own last-checked time. Some directory data comes from <a href="https://github.com/public-apis/public-apis">github.com/public-apis/public-apis</a> (MIT license).</p>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
