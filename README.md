@@ -10,7 +10,7 @@ Live: https://api.xsrazy.web.id
 
 API Hub is a directory of free APIs that you can try without leaving the page. It lists 2,007 APIs with category and auth filters, text search, and a per-entry liveness status that is rechecked on rotation. Every card carries a try-it sandbox with editable parameters and cURL and JavaScript snippets. Third-party APIs run through a guarded proxy, while the ten Original APIs run on this project's own serverless functions and need no key.
 
-A second section searches journals and books across six live scholarly and book sources, and every result links out to the original site. A built-in URL shortener with click counting rounds out the toolset.
+A built-in URL shortener with click counting rounds out the toolset.
 
 ## Features
 
@@ -18,7 +18,6 @@ A second section searches journals and books across six live scholarly and book 
 - Liveness status on every entry, rechecked on rotation: a scheduled check probes 300 entries every 15 minutes, covering the whole catalog in about 2 hours. Each entry shows its own last-checked time. States are Online, Bot-limited, Status unknown, Needs parameters, and Unavailable with the HTTP status. Seed snapshots fill in entries that have not been probed yet in a fresh instance and expire after 48 hours.
 - Ten Original APIs, all keyless: Mock Data, Chart Image, Site Check, Hash and Encoding, JWT Tools, Regex and Cron, IP and User-Agent, DNS Lookup, Weather, and URL Shortener.
 - Try-it sandbox on every card: editable parameters, live response viewer, and cURL and JavaScript snippets. Own tools are called directly. Third-party APIs go through `/api/proxy`, which only allows public hosts, re-checks redirect hops (max 3), times out after 8 seconds, and caps bodies at 256 KB.
-- Journal and book search across Open Library, Crossref, DOAJ, LibriVox, Wikibooks, and OpenAlex, with up to 10 results per source. One failing source never fails the response. Titles and abstracts are stripped of HTML and truncated at word boundaries, and every result links to the original site.
 - URL shortener backed by a private Blob store: random 6-character codes, collision retries, click counting, `/s/:code` redirects, and a friendly HTML page for unknown codes instead of raw JSON.
 - Dark and light themes, persisted in the browser. Fully English interface, with Open Graph and Twitter cards, JSON-LD, `robots.txt`, and a sitemap.
 
@@ -34,7 +33,7 @@ No framework and no build step. A single static page talks to zero-dependency No
 
 - Frontend: `index.html` plus `assets/app.js` and `assets/styles.css`. Vanilla JavaScript fetches the `/api/*` endpoints, renders cards, pagination, filters, the sandbox panels, and the theme toggle (persisted in `localStorage`).
 - Backend: `api/*.js`, one file per endpoint, using only Node.js built-ins plus `fetch`. Shared helpers (JSON responses, query parsing, timeout fetch, in-memory cache, Blob access, SSRF guards) live in `api/_lib.js`.
-- Data: the directory is sharded JSON (`catalog-00.json` through `catalog-09.json` plus `catalog-manifest.json`) so no single deploy payload exceeds the upload limit. `journals.json` holds the journal and book sources, and `status-seed-*.json` holds fallback liveness snapshots. Hidden entries are never served.
+- Data: the directory is sharded JSON (`catalog-00.json` through `catalog-09.json` plus `catalog-manifest.json`) so no single deploy payload exceeds the upload limit. `status-seed-*.json` holds fallback liveness snapshots. Hidden entries are never served.
 - State: the shortener and the rolling check state live in one JSON document in a private Vercel Blob store, accessed with read-modify-write. The concurrent-write race in the shortener (two simultaneous shortens can drop one code) is documented in `api/shorten.js` and accepted: codes are random, collisions are retried, and a lost code simply never resolves.
 - Hosting and deploy: Vercel project `api-hub` at `api.xsrazy.web.id`. The project is connected to this repository, so every push to `main` auto-deploys. A `*/15 * * * *` cron in `vercel.json` hits `/api/check` to drive the rolling checks. Function limits are 60 seconds for `/api/check` and 30 seconds for the other endpoints.
 
@@ -70,14 +69,13 @@ Names only. No values are stored in this repository.
 
 ## Notes
 
-- Last verified November 4, 2026: 2,007 directory entries displayed, 24 journal and book sources listed, 10 Original APIs, rolling checks running on the 15-minute schedule.
+- Last verified November 4, 2026: 2,007 directory entries displayed, 10 Original APIs, rolling checks running on the 15-minute schedule.
 - Directory data comes from the public-apis collection (MIT license), with attribution on the site. Liveness probes check that the linked site responds; they do not verify that every endpoint of a listed API works with correct parameters.
 - The shortener's read-modify-write race is accepted by design; see `api/shorten.js`.
 
 ## Credits
 
 - Directory data: [public-apis](https://github.com/public-apis/public-apis) contributors (MIT license).
-- Search sources: Open Library, Crossref, DOAJ, LibriVox, Wikibooks, OpenAlex.
 - Weather data: [Open-Meteo](https://open-meteo.com/). DNS data: Google Public DNS over HTTPS.
 
 ## License

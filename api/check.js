@@ -1,7 +1,7 @@
 'use strict';
 
-// Liveness probes for the directory entries in catalog.json and
-// journals.json at the project root. Failures are data, not errors.
+// Liveness probes for the directory entries in the catalog shards
+// at the project root. Failures are data, not errors.
 
 const fs = require('fs');
 const path = require('path');
@@ -96,7 +96,6 @@ function catalogFiles() {
     }).sort();
   } catch (err) { /* ignore */ }
   const files = shards.length ? shards : ['catalog.json'];
-  files.push('journals.json');
   return files;
 }
 

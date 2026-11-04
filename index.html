@@ -38,7 +38,6 @@
     <nav class="topnav" aria-label="Main navigation">
       <a href="#directory">Directory</a>
       <a href="#own">Original APIs</a>
-      <a href="#journals">Journals and Books</a>
     </nav>
     <button type="button" class="btn ghost small theme-toggle" id="theme-toggle" aria-pressed="false">Light mode</button>
   </div>
@@ -114,36 +113,6 @@
     <noscript><p>This directory needs JavaScript to show the API list and its statuses.</p></noscript>
   </section>
 
-  <section id="journals" aria-labelledby="journals-heading">
-    <div class="section-head">
-      <div>
-        <h2 id="journals-heading">Journals and Books</h2>
-        <p class="section-intro">Search journals and books from several sources at once. Results always link to the original site.</p>
-      </div>
-    </div>
-
-    <div class="search-card">
-      <h3 style="margin-top:0">Search Journals and Books</h3>
-      <form id="aggregator-form">
-        <div class="search-row">
-          <div class="control">
-            <label for="aggregator-query">Keyword</label>
-            <input type="search" id="aggregator-query" placeholder="Example: machine learning, education, history" autocomplete="off">
-          </div>
-          <button type="submit" class="btn" id="aggregator-button">Search</button>
-        </div>
-      </form>
-      <p class="hint">Search runs when the Search button or the Enter key is pressed.</p>
-      <div id="aggregator-status" aria-live="polite"></div>
-      <div id="aggregator-results"></div>
-    </div>
-
-    <h3>Journal and Book Site Directory</h3>
-    <p class="last-checked" id="journal-last-checked"></p>
-    <p class="error" id="journal-error" hidden></p>
-    <div id="journal-groups"></div>
-    <noscript><p>The journal and book directory needs JavaScript to show the site list and its statuses.</p></noscript>
-  </section>
 </main>
 
 <footer class="site-footer">

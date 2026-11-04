@@ -2,10 +2,8 @@
 
 (function () {
   var MAX_DISPLAY = 8000;
-  var GROUP_ORDER = ["Indonesian Journals", "International Journals", "Free Books", "Repositories / Platforms"];
   var PAGE_SIZE = 60;
 
-  var journalData = [];
   var checkMap = new Map();
   var checkedAt = null;
   var checkLoaded = false;
@@ -26,15 +24,6 @@
     "gutendex": true,
     "dictionary-api": true,
     "coingecko": true,
-    "journal-neliti": true,
-    "journal-doaj": true,
-    "journal-academia-edu": true,
-    "journal-wiley-online-library": true,
-    "journal-sciencedirect": true,
-    "journal-ieee-xplore": true,
-    "journal-emerald-insight": true,
-    "journal-researchgate": true,
-    "journal-manybooks": true
   };
 
   var directoryGrid = document.getElementById("directory-grid");
@@ -51,14 +40,6 @@
   var authFilter = document.getElementById("auth-filter");
   var ownGrid = document.getElementById("own-grid");
   var ownError = document.getElementById("own-error");
-  var journalGroups = document.getElementById("journal-groups");
-  var journalError = document.getElementById("journal-error");
-  var journalLastChecked = document.getElementById("journal-last-checked");
-  var aggregatorForm = document.getElementById("aggregator-form");
-  var aggregatorQuery = document.getElementById("aggregator-query");
-  var aggregatorButton = document.getElementById("aggregator-button");
-  var aggregatorStatus = document.getElementById("aggregator-status");
-  var aggregatorResults = document.getElementById("aggregator-results");
   var themeToggle = document.getElementById("theme-toggle");
   var statTotal = document.getElementById("stat-total");
   var statOwn = document.getElementById("stat-own");
@@ -73,11 +54,6 @@
 
   function slugify(value) {
     return String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  }
-
-  function journalId(entry) {
-    if (entry && entry.id) return String(entry.id);
-    return "journal-" + slugify(entry ? entry.name : "");
   }
 
   function isSafeHttpUrl(url) {
@@ -276,11 +252,9 @@
     var formatted = formatCheckedAt(checkedAt);
     if (formatted) {
       directoryLastChecked.textContent = "Last rolling check: " + formatted + ". Each entry shows its own last-checked time.";
-      journalLastChecked.textContent = "Last rolling check: " + formatted + ". Each entry shows its own last-checked time.";
       if (statChecked) statChecked.textContent = "Last checked " + formatted + ".";
     } else {
       directoryLastChecked.textContent = "Status not available yet. Statuses are checked on rotation with caching, not in realtime; each entry shows its own last-checked time once checked.";
-      journalLastChecked.textContent = "";
     }
   }
 
@@ -657,184 +631,7 @@
       checkLoaded = true;
       renderLastChecked();
       refreshStatuses();
-      if (journalData.length) renderJournalGroups();
     }).catch(function () { renderLastChecked(); });
-  }
-
-  function groupHeading(entry) {
-    var raw = String((entry && entry.group) || "").trim();
-    var lower = raw.toLowerCase();
-    if (lower.indexOf("indonesia") !== -1) return GROUP_ORDER[0];
-    if (lower.indexOf("internasional") !== -1 || lower.indexOf("international") !== -1) return GROUP_ORDER[1];
-    if (lower.indexOf("buku") !== -1 || lower.indexOf("book") !== -1) return GROUP_ORDER[2];
-    if (lower.indexOf("repositori") !== -1 || lower.indexOf("repository") !== -1 || lower.indexOf("platform") !== -1) return GROUP_ORDER[3];
-    var legacyGroups = { "Jurnal Indonesia": GROUP_ORDER[0], "Jurnal Internasional": GROUP_ORDER[1], "Buku Gratis": GROUP_ORDER[2], "Repositori/Platform": GROUP_ORDER[3] };
-    if (legacyGroups[raw]) return legacyGroups[raw];
-    if (GROUP_ORDER.indexOf(raw) !== -1) return raw;
-    return GROUP_ORDER[3];
-  }
-
-  function renderJournalGroups() {
-    journalGroups.replaceChildren();
-    GROUP_ORDER.forEach(function (heading) {
-      var groupSection = el("div", "journal-group");
-      groupSection.appendChild(el("h3", null, heading));
-      var entries = journalData.filter(function (entry) { return groupHeading(entry) === heading; });
-      entries.sort(function (a, b) { return String(a.name || "").localeCompare(String(b.name || ""), "en"); });
-      if (entries.length === 0) {
-        groupSection.appendChild(el("p", null, "No entries in this group yet."));
-        journalGroups.appendChild(groupSection);
-        return;
-      }
-      var list = el("ul", "journal-list");
-      entries.forEach(function (entry) {
-        var item = el("li");
-        if (isSafeHttpUrl(entry.url)) {
-          var link = el("a", null, entry.name || "Unnamed");
-          link.href = entry.url;
-          link.target = "_blank";
-          link.rel = "noopener";
-          item.appendChild(link);
-        } else {
-          item.appendChild(el("span", null, entry.name || "Unnamed"));
-        }
-        var badges = el("ul", "badges");
-        badges.appendChild(el("li", "badge", entry.api ? "Searchable" : "Directory"));
-        item.appendChild(badges);
-        if (!NO_STATUS_IDS[journalId(entry)] && !entry.noStatus) {
-          var journalCheck = checkMap.get(journalId(entry));
-          var journalHasCheck = checkMap.has(journalId(entry));
-          if (journalCheck && journalCheck.state === "botwall") {
-            // Bot-wall: no status line at all, same as noStatus entries.
-          } else if (entry.status === "unconfirmed" && !journalHasCheck) {
-            item.appendChild(el("p", "status-line", "Status unconfirmed"));
-          } else {
-            var status = statusForId(journalId(entry));
-            var hasCheck = journalHasCheck;
-            var line = el("p", "status-line");
-            var dot = el("span", "dot " + status.cls);
-            dot.setAttribute("aria-hidden", "true");
-            line.appendChild(dot);
-            var label = status.text;
-            if (!hasCheck && entry.status === "bot-blocked") label = "Bot-limited";
-            else if (!hasCheck && entry.status === "ok") label = "Reachable";
-            line.appendChild(document.createTextNode(label));
-            var journalShortChecked = formatShortCheckedAt(status.checkedAt);
-            if (hasCheck && journalShortChecked) line.appendChild(el("span", "checked-at", "checked " + journalShortChecked));
-            item.appendChild(line);
-          }
-        }
-        if (entry.note) item.appendChild(el("p", "journal-note", String(entry.note)));
-        list.appendChild(item);
-      });
-      groupSection.appendChild(list);
-      journalGroups.appendChild(groupSection);
-    });
-  }
-
-  function loadJournals() {
-    fetch("/journals.json").then(function (res) {
-      if (!res.ok) throw new Error("journals failed");
-      return res.json();
-    }).then(function (data) {
-      var list = Array.isArray(data) ? data : (data.entries || data.items || []);
-      journalData = list.filter(function (entry) { return !(entry && entry.hidden); });
-      journalError.hidden = true;
-      renderJournalGroups();
-    }).catch(function () {
-      journalError.hidden = false;
-      journalError.textContent = "The journal and book directory could not be loaded right now. Please reload the page and try again.";
-      journalGroups.replaceChildren();
-    });
-  }
-
-  function renderAggregatorSources(sources) {
-    aggregatorStatus.replaceChildren();
-    if (!Array.isArray(sources) || sources.length === 0) {
-      aggregatorStatus.appendChild(el("p", null, "No source status information."));
-      return;
-    }
-    var list = el("ul", "source-status");
-    sources.forEach(function (source) {
-      var parts = [source.name || "Unknown source"];
-      if (source.status) parts.push(String(source.status));
-      if (source.count !== undefined && source.count !== null) parts.push(String(source.count) + " results");
-      if (source.ms !== undefined && source.ms !== null) parts.push(String(source.ms) + " ms");
-      list.appendChild(el("li", null, parts.join(" - ")));
-    });
-    aggregatorStatus.appendChild(list);
-  }
-
-  function renderAggregatorResults(data) {
-    aggregatorResults.replaceChildren();
-    var results = Array.isArray(data.results) ? data.results : [];
-    if (results.length === 0) {
-      aggregatorResults.appendChild(el("p", null, "No results for that keyword. Try a different keyword."));
-      return;
-    }
-    var orderedSources = [];
-    if (Array.isArray(data.sources)) {
-      data.sources.forEach(function (source) {
-        if (source && source.name && orderedSources.indexOf(source.name) === -1) orderedSources.push(source.name);
-      });
-    }
-    var groups = new Map();
-    results.forEach(function (result) {
-      var key = result.source || "Unknown source";
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key).push(result);
-    });
-    var groupNames = orderedSources.filter(function (name) { return groups.has(name); });
-    groups.forEach(function (value, key) { if (groupNames.indexOf(key) === -1) groupNames.push(key); });
-    groupNames.forEach(function (sourceName) {
-      var group = el("div", "result-group");
-      group.appendChild(el("h4", null, sourceName));
-      var list = el("ul", "result-list");
-      groups.get(sourceName).forEach(function (result) {
-        var item = el("li");
-        if (isSafeHttpUrl(result.url)) {
-          var link = el("a", "result-title", result.title || "Untitled");
-          link.href = result.url;
-          link.target = "_blank";
-          link.rel = "noopener";
-          item.appendChild(link);
-        } else {
-          item.appendChild(el("span", "result-title", result.title || "Untitled"));
-        }
-        if (result.description) item.appendChild(el("p", "result-desc", String(result.description)));
-        var metaParts = [String(result.source || sourceName)];
-        if (result.year !== undefined && result.year !== null && result.year !== "") metaParts.push(String(result.year));
-        item.appendChild(el("p", "result-meta", metaParts.join(" - ")));
-        list.appendChild(item);
-      });
-      group.appendChild(list);
-      aggregatorResults.appendChild(group);
-    });
-  }
-
-  function runAggregatorSearch() {
-    var query = aggregatorQuery.value.trim();
-    if (!query) {
-      aggregatorStatus.replaceChildren();
-      aggregatorStatus.appendChild(el("p", null, "Enter a keyword first."));
-      aggregatorResults.replaceChildren();
-      return;
-    }
-    aggregatorButton.disabled = true;
-    aggregatorStatus.replaceChildren();
-    aggregatorStatus.appendChild(el("p", null, "Searching..."));
-    aggregatorResults.replaceChildren();
-    fetch("/api/search?q=" + encodeURIComponent(query)).then(function (res) {
-      if (!res.ok) throw new Error("search failed");
-      return res.json();
-    }).then(function (data) {
-      renderAggregatorSources(data.sources);
-      renderAggregatorResults(data);
-    }).catch(function () {
-      aggregatorStatus.replaceChildren();
-      aggregatorStatus.appendChild(el("p", "error", "Search failed. The service cannot be reached right now, please try again later."));
-      aggregatorResults.replaceChildren();
-    }).then(function () { aggregatorButton.disabled = false; });
   }
 
   function applyTheme(theme) {
@@ -882,16 +679,10 @@
     });
   }
 
-  aggregatorForm.addEventListener("submit", function (event) {
-    event.preventDefault();
-    runAggregatorSearch();
-  });
-
   var initialPage = parseInt(new URLSearchParams(window.location.search).get("page"), 10);
   if (Number.isFinite(initialPage) && initialPage >= 1) currentPage = initialPage;
   initTheme();
   loadOwn();
   loadDirectory(true);
   loadCheck();
-  loadJournals();
 })();
